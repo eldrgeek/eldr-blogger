@@ -150,6 +150,7 @@ app.get('/getData',
        }
        const patchIt = (id,title,item) => {
          console.log(item)
+         item.labels.push('yoiks')
          // console.log(Object.keys(item))
          // item.labels.push = "verymuch"
          // item.title = item.title + "!"
@@ -159,7 +160,7 @@ app.get('/getData',
            postId: postId,
            publish: true,
            auth: oauth2Client,
-           resource: {labels: ["label1", "label2"]}
+           resource: {labels: item.labels}
 
         }
         console.log("About to patchit")
