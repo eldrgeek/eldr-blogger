@@ -15,7 +15,6 @@ let dataDeets; //data to pull from spreadsheet
 const clientID = process.env.CLIENT_ID;
 const clientSecret = process.env.CLIENT_SECRET;
 const blogId = process.env.BLOG_KEY;
-const postId = process.env.POST_KEY;
 
 var callbackURL = 'https://'+process.env.PROJECT_DOMAIN+'.glitch.me/login/google/return';
 var scopes = ['https://www.googleapis.com/auth/spreadsheets.readonly',
@@ -70,9 +69,10 @@ app.get('/login/google/return', function(req, res) {
       // Tokens contains an access_token and a refresh_token if you set access type to offline. Save them.
       if (!err) {
         console.log("Setting credentials")
-        
+        res.cookie('access_token', tokens.access_token)
+        res.cookie('refresh_token', tokens.refresh_token)
         let keys = Object.keys(tokens)
-        console.log(keys)
+        console.log("keys are", keys)
         oauth2Client.setCredentials({
           access_token: tokens.access_token,
           refresh_token: tokens.refresh_token
@@ -101,6 +101,10 @@ app.get('/success',
   function(req, res) {
     console.log("success setting cookie");
     if(req.cookies['google-auth']) {
+      oauth2Client.setCredentials({
+          access_token: req.cookies.access_token,
+          refresh_token: req.cookies.refresh_token
+        });
       console.log("Google auth");
       res.sendFile(__dirname + '/views/success.html');
     } else {
@@ -140,7 +144,7 @@ app.get('/getData',
        const getAndPrintPosts = () => {
          blogger.posts.list(blogRequest, function(err, response) {
           console.log("getting posts");
-          if(err) return;
+          if(err) {console.log("error", err); return;}
           printPosts(response);
           return
           if( response.data.nextPageToken ) {
@@ -149,15 +153,17 @@ app.get('/getData',
          })
        }
        const patchIt = (id,title,item) => {
-         console.log(item)
-         item.labels.push('yoiks')
+         console.log("Patchit")
+         console.log("title", title, "labels", item.labels)
+         if (!item.labels) item.labels = []
+         item.labels.push('yoiksey')
          // console.log(Object.keys(item))
          // item.labels.push = "verymuch"
          // item.title = item.title + "!"
          // console.log(item)
          let patchRequest = {
            blogId: blogId,
-           postId: postId,
+           postId: id,
            publish: true,
            auth: oauth2Client,
            resource: {labels: item.labels}
@@ -165,7 +171,11 @@ app.get('/getData',
         }
         console.log("About to patchit")
         blogger.posts.patch(patchRequest, function(err, response) {
-          console.log("patchrequest",err)
+          if(err) {
+            console.log("patchrequest",err.errors)
+          } else {
+            console.log("OK");
+          }
         })
        }
        let postNo = 0
@@ -184,7 +194,7 @@ app.get('/getData',
        }
        
        getAndPrintPosts() 
-        
+       res.send(["1", "2", "3"])
 
         // Now get spreadsheet values
         // var request = {
