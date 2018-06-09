@@ -53,12 +53,13 @@ app.get('/', function(req, res) {
 app.get('/logoff',
   function(req, res) {
     console.log("Logging off")
-    res.clearCookie('google-auth');
+    res.clearCookie('googleauth');
     res.redirect('/');
   }
 );
 
 app.get('/auth/google', function(req, res) {
+  
   console.log("redirecting to ", url);
   res.redirect(url);
 });
@@ -91,7 +92,7 @@ app.get('/login/google/return', function(req, res) {
 app.get('/setcookie',
   function(req, res) {
     console.log("Going to set the cookie");
-    res.cookie('google-auth', new Date());
+    res.cookie('googleauth', new Date());
     res.redirect('/success');
   }
 );
@@ -100,7 +101,7 @@ app.get('/setcookie',
 app.get('/success',
   function(req, res) {
     console.log("success setting cookie");
-    if(req.cookies['google-auth']) {
+    if(req.cookies['googleauth']) {
       oauth2Client.setCredentials({
           access_token: req.cookies.access_token,
           refresh_token: req.cookies.refresh_token
