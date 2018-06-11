@@ -112,30 +112,23 @@ app.get('/getStatus',
   }
 );
 
-const pushSheet = () => {
+const pushSheetWithContents = (contents) => {
+  console.log("Push Sheet");
   let request = {
-          sheetId: sheetId,
-          range: "A1",
+          spreadsheetId: sheetId,
+          range: "70Years!A1",
           auth: oauth2Client,
+          valueInputOption: "RAW",
 // fields=etag%2Citems%2Ckind%2CnextPageToken&key={YOUR_API_KEY} 
         
        requestBody: {
-         "values": [
-            [
-             "ValueA1",
-             "ValueB1"
-            ],
-            [
-             "Row2A1",
-             "Row2B1"
-            ]
-         ],
+         "values": contents,
          "majorDimension": "ROWS"
                  }
        }
 sheets.spreadsheets.values.update(request, (err, response) =>
     {
-      if( err) console.log(err.errors);
+      if( err) {console.log(err)} else {console.log(response)}
     })
 }
 
@@ -260,4 +253,18 @@ const getPeople = () =>{
     //       userName = "Unknown Stranger";        
     //     }
   }
-app.get('/getData', getData)
+
+const pushSheet = () => {
+  return pushSheetWithContents ([
+            [
+             "ValueA1",
+             "ValueB1"
+            ],
+            [
+             "Row2A1",
+             "Row2B1"
+            ]
+         ],)}
+  
+
+app.get('/getData', pushSheet)
