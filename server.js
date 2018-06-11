@@ -118,9 +118,8 @@ const pushSheetWithContents = (contents) => {
           spreadsheetId: sheetId,
           range: "70Years!A1",
           auth: oauth2Client,
-          valueInputOption: "RAW",
-// fields=etag%2Citems%2Ckind%2CnextPageToken&key={YOUR_API_KEY} 
-        
+          valueInputOption: "USER_ENTERED",
+
        requestBody: {
          "values": contents,
          "majorDimension": "ROWS"
@@ -155,6 +154,7 @@ const getData =  (req, res) => {
           //getAndPrintPosts(postsData)
           // } else {
               console.log("postsData", postsData)
+              pushSheetWithContents(postsData)
               res.send(postsData)
             }
           })
@@ -170,10 +170,13 @@ const getData =  (req, res) => {
           console.log( item.title, item.url, item.labels )
           //patchIt(item.id, item.title, item)
    
-          for( let i = 0; i< items.length; i++ ){
+          for( let i = 0; i< 1; i++ ){
             let item = items[i]
             console.log(++postNo, item.title)
-            postsData.push([item.title, item.url,item.labels])
+            const link = `=HYPERLINK("${item.url}","post")`
+            const edit = `=HYPERLINK("https://www.blogger.com/blogger.g?blogID=${blogId}#editor/target=post;postID=${item.id}","edit")`
+            postsData.push([item.title, link, edit,JSON.stringify(item.labels)])
+            //https://www.blogger.com/blogger.g?blogID=809323243837962619#editor/target=post;postID=5587730061441549723
           }
           let nextToken = response.data.nextPageToken;
           blogRequest.pageToken = nextToken;
@@ -257,7 +260,7 @@ const getPeople = () =>{
 const pushSheet = () => {
   return pushSheetWithContents ([
             [
-             "ValueA1",
+             "ValueA1xxx",
              "ValueB1"
             ],
             [
@@ -267,4 +270,4 @@ const pushSheet = () => {
          ],)}
   
 
-app.get('/getData', pushSheet)
+app.get('/getData', getData)
